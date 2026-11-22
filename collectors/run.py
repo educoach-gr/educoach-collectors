@@ -1,4 +1,4 @@
-"""Runs the collectors: python3 -m collectors.run [--dry-run] [--only fek,diavgeia,browser] [--explain]
+"""Runs the collectors: python3 -m collectors.run [--dry-run] [--only fek,diavgeia,browser,trends] [--explain]
 
 Each collector is isolated: when one fails the rest still run, and the failure is reported to the gateway
 (inbox_add with `error`), so the research run can tell the owner that a source is down.
@@ -13,7 +13,7 @@ import importlib, sys, time, traceback
 
 from .common import Run, log, report_error
 
-COLLECTORS = ['fek', 'diavgeia', 'browser']
+COLLECTORS = ['fek', 'diavgeia', 'browser', 'trends']
 
 
 def main(argv):
