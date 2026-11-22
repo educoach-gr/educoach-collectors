@@ -131,7 +131,8 @@
       "category": "skills",
       "scope": "body",
       "require_date": true,
-      "tested": "2026-11-19 (Mac, headless Chromium): read at /nea-anakoinwseis, 12 dated items. /news shows an empty list."
+      "tested": "2026-11-22: the site does not answer GitHub's runners at all (Page.goto timeout after 45 s, twice on the same day), while it loads in 6 s from a Greek home connection. Disabled here. ΔΥΠΑ's decisions still arrive through the Διαύγεια collector.",
+      "enabled": false
     }
   ]
 }

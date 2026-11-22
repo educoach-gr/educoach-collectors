@@ -21,7 +21,8 @@ It is a plain headless browser. It keeps Chromium's own user agent, hides nothin
 
 State on 19/11/2026, from a home connection (GitHub's runners have other IP addresses, so results there may differ):
 
-- Read: ΔΥΠΑ Νέα-Ανακοινώσεις, Europol vacancies, Commission Blue Book traineeships (page-change watch).
+- Read: Europol vacancies, Commission Blue Book traineeships (page-change watch).
+- ΔΥΠΑ Νέα-Ανακοινώσεις: read from a Greek home connection, but the site does not answer GitHub's runners (timeout, 22/11/2026). Disabled; ΔΥΠΑ's decisions arrive through the Διαύγεια collector.
 - Refused a headless browser: UN Careers (403), EURES (429), EMBL jobs (429).
 - Refuse plain requests with 403, not tried with a browser: Cedefop (news, vacancies), OECD education, Erasmus+ news, Council of the EU traineeships, Council of Europe traineeships, Ίδρυμα Ωνάση, ΕΚΤ, ErasmusIntern.
 
