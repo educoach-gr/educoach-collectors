@@ -14,6 +14,7 @@ Signals (all plain requests to pages whose robots.txt allows them):
   x           Trending on X in Greece (getdaytrends.com). What is being argued about: television, statements, sport,
               events. A term that is still there on a second day is a trend; the rest only confirm other signals.
   twitch      Most watched games on Twitch with their 7-day change (twitchtracker.com). Worldwide, not Greece.
+              Skipped on the days the site refuses the runner's address.
   steam       Top sellers of the Steam store for Greece. New names only.
   spotify     Spotify daily chart for Greece (kworb.net): songs that entered high in the last three days.
 
@@ -297,6 +298,9 @@ def collect(run, explain=False):
 
     def twitch():
         status, data = http.get(TWITCH, timeout=40)
+        if status in (403, 429):          # the site turns some data-centre addresses away: a refusal, not a fault
+            log(f'  twitch: HTTP {status}, skipped today')
+            return
         if status != 200:
             raise RuntimeError(f'HTTP {status}')
         games = twitch_games(data.decode('utf-8', 'replace'))
