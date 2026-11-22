@@ -11,8 +11,9 @@ They run once a day on GitHub Actions (`.github/workflows/collectors.yml`, 03:20
 | `fek.py` | ΦΕΚ (the Government Gazette), τεύχη Α and Β, through the National Printing House API (`api.et.gr/apiFEK/{issue}/{year}/{n}/{html\|pdf}`) | The API has no search: you must know the sheet number. | Walks the new numbers, reads the first pages of each PDF (`pdftotext`), splits a sheet into its acts and keeps the acts about education. About 6 of 320 Β sheets pass (two and a half weeks, November 2026). A law (τεύχος Α) is also kept when the titles of its articles are about education. |
 | `diavgeia.py` | Διαύγεια open data API, for Υπουργείο Παιδείας, ΔΥΠΑ, ΙΕΠ, ΕΟΠΠΕΠ, ΕΘΑΑΕ, ΙΝΕΔΙΒΙΜ | The API works, but the Ministry alone posts ~300 acts a day, nearly all routine. | Act types Α.1.1, Α.1.2, Α.2, Α.3, Γ.3.1, 2.4.7.1, then the same topic rules. About 10 of 2,460 acts pass (ten days). All circulars (Α.3) of the Ministry are kept unless routine. |
 | `browser.py` | Listing pages that are empty until JavaScript runs (`browser_sources.json`) | A plain request gets an empty shell. | Opens the page in headless Chromium, posts the links of the list (or, with `"mode": "page"`, one item when the page's text changes). |
+| `trends.py` | What people in Greece follow this week: most viewed articles of the Greek Wikipedia (Wikimedia API), most watched games on Twitch (twitchtracker.com), Steam top sellers for Greece, the Spotify daily chart for Greece (kworb.net), Google Trends daily searches (RSS) | A research agent sees one day at a time; a trend shows only across days and across sources. | An article that stays in the Wikipedia top 30 for three of the last four days and was clearly lower ten days ago; a game whose Twitch audience doubled in a week; a new name in the Steam top ten; a song that entered the chart high. Signals about the same name are merged into one item, strongest first, at most 8 a run, each trend once a month. Not an education filter: the research decides what a trend is good for. |
 
-`relevance.py` holds what «about education» means (topics → category, routine words that drop an act). `test_filters.py` checks the rules on real titles: `python3 -m unittest collectors.test_filters`.
+`test_trends.py` checks the parsers and the merging of `trends.py`. `relevance.py` holds what «about education» means (topics → category, routine words that drop an act). `test_filters.py` checks the rules on real titles: `python3 -m unittest collectors.test_filters`.
 
 ## What the browser collector does not do
 
@@ -24,11 +25,17 @@ State on 19/11/2026, from a home connection (GitHub's runners have other IP addr
 - Refused a headless browser: UN Careers (403), EURES (429), EMBL jobs (429).
 - Refuse plain requests with 403, not tried with a browser: Cedefop (news, vacancies), OECD education, Erasmus+ news, Council of the EU traineeships, Council of Europe traineeships, Ίδρυμα Ωνάση, ΕΚΤ, ErasmusIntern.
 
+## What the trends collector does not read
+
+- TikTok Creative Center: answers an error to a headless browser.
+- YouTube trending: sits behind a consent page.
+- Netflix Top 10 and Box Office Mojo: their `robots.txt` disallows everything.
+
 ## Run locally
 
 ```bash
 python3 -m collectors.run --dry-run --explain                 # everything, nothing sent; why each item was kept or dropped
-python3 -m collectors.run --dry-run --only fek,diavgeia       # some collectors
+python3 -m collectors.run --dry-run --only fek,diavgeia       # some collectors (fek, diavgeia, browser, trends)
 python3 -m collectors.run --dry-run --only browser --sources dypa_news,europol_vacancies
 python3 -m collectors.run --dry-run --state-file /tmp/c.json  # keep cursors between dry runs, to test «new since last run»
 python3 -m collectors.run                                     # for real (needs the gateway config)
@@ -48,12 +55,12 @@ POST {secret, action: "inbox_add", source: "<collector>", items: [...], cursors:
 item = {source, title, url, published_at: "YYYY-MM-DD" | "", excerpt (≤ 600 chars), category?, ref?}
 ```
 
-- The gateway dedupes on `ref` (default: `url`). Refs: `fek-<issue>-<year>-<n>`, `diavgeia-<ΑΔΑ>`, the link url, `<name>-<hash>` for a page watch.
+- The gateway dedupes on `ref` (default: `url`). Refs: `fek-<issue>-<year>-<n>`, `diavgeia-<ΑΔΑ>`, the link url, `<name>-<hash>` for a page watch, `trend-<name>-<yyyy-mm>`.
 - `seed: true` records the items as seen without putting them in the Inbox (first run of a link source).
 - `error` reports a failed run or failed sources; `items` may be empty.
 - `category`: `school`, `admission`, `university`, `careers`, `opportunities`, `skills`, `edtech`, `policy`, `parents`, `inclusion`, `seasonal`.
 
-Cursors: `fek_<issue>_<year>` (last number read) and `fek_<issue>_<year>_gaps` (numbers that did not exist yet, comma separated, retried); `diavgeia_<org uid>` (the day up to which POSTED acts were read; the search is by posting date, because an act issued last week can be posted today); `seeded_<name>` (a browser source has had its first run).
+Cursors: `fek_<issue>_<year>` (last number read) and `fek_<issue>_<year>_gaps` (numbers that did not exist yet, comma separated, retried); `diavgeia_<org uid>` (the day up to which POSTED acts were read; the search is by posting date, because an act issued last week can be posted today); `seeded_<name>` (a browser source has had its first run). `trends_steam_top`: the names already seen in the Steam top ten, as JSON.
 
 ## Add a source
 
