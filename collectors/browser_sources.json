@@ -1,0 +1,137 @@
+{
+  "_help": "One entry per listing page. name: stable key (cursor seeded_<name>). label: the source as it shows in the Inbox. url: the listing. category: default category of its items. Optional: scope (CSS of the list container; default: main content), link_regex / exclude_regex (on the link url), wait_for (CSS to wait for), click (CSS list, e.g. a cookie button), settle_ms, min_text (default 25), min_links (default 2), max_items (default 40), locale (default el-GR), require_date (keep only links with a date next to them), mode \"page\" (no list: one item whenever the text of the page changes; with min_chars), enabled (default true). tested: what a real browser saw on the date given.",
+  "sources": [
+    {
+      "name": "cedefop_news",
+      "label": "Cedefop · News",
+      "url": "https://www.cedefop.europa.eu/en/news",
+      "category": "skills",
+      "locale": "en-GB",
+      "enabled": false,
+      "tested": "2026-11-13/19: answers HTTP 403 to automated requests (plain request from the Mac and Claude's web fetch). Not tried with a browser: getting past a site's refusal is not something this collector does. Enable only if the site allows it (robots.txt, a feed, an API)."
+    },
+    {
+      "name": "cedefop_vacancies",
+      "label": "Cedefop · Vacancies",
+      "url": "https://www.cedefop.europa.eu/en/about-cedefop/job-opportunities",
+      "category": "opportunities",
+      "locale": "en-GB",
+      "enabled": false,
+      "tested": "2026-11-13/19: answers HTTP 403 to automated requests (plain request from the Mac and Claude's web fetch). Not tried with a browser: getting past a site's refusal is not something this collector does. Enable only if the site allows it (robots.txt, a feed, an API)."
+    },
+    {
+      "name": "oecd_education",
+      "label": "OECD · Education and skills",
+      "url": "https://www.oecd.org/en/topics/education-and-skills.html",
+      "category": "policy",
+      "locale": "en-GB",
+      "enabled": false,
+      "tested": "2026-11-13/19: answers HTTP 403 to automated requests (plain request from the Mac and Claude's web fetch). Not tried with a browser: getting past a site's refusal is not something this collector does. Enable only if the site allows it (robots.txt, a feed, an API)."
+    },
+    {
+      "name": "erasmus_news",
+      "label": "Erasmus+ · Νέα",
+      "url": "https://erasmus-plus.ec.europa.eu/el/news",
+      "category": "opportunities",
+      "enabled": false,
+      "tested": "2026-11-13/19: answers HTTP 403 to automated requests (plain request from the Mac and Claude's web fetch). Not tried with a browser: getting past a site's refusal is not something this collector does. Enable only if the site allows it (robots.txt, a feed, an API)."
+    },
+    {
+      "name": "council_traineeships",
+      "label": "Συμβούλιο της ΕΕ · Traineeships",
+      "url": "https://www.consilium.europa.eu/en/general-secretariat/jobs/traineeships/",
+      "category": "opportunities",
+      "locale": "en-GB",
+      "enabled": false,
+      "tested": "2026-11-13/19: answers HTTP 403 to automated requests (plain request from the Mac and Claude's web fetch). Not tried with a browser: getting past a site's refusal is not something this collector does. Enable only if the site allows it (robots.txt, a feed, an API)."
+    },
+    {
+      "name": "coe_traineeships",
+      "label": "Council of Europe · Traineeships",
+      "url": "https://www.coe.int/en/web/jobs/traineeships",
+      "category": "opportunities",
+      "locale": "en-GB",
+      "enabled": false,
+      "tested": "2026-11-13/19: answers HTTP 403 to automated requests (plain request from the Mac and Claude's web fetch). Not tried with a browser: getting past a site's refusal is not something this collector does. Enable only if the site allows it (robots.txt, a feed, an API)."
+    },
+    {
+      "name": "onassis_scholarships",
+      "label": "Ίδρυμα Ωνάση · Υποτροφίες",
+      "url": "https://www.onassis.org/el/scholarships",
+      "category": "opportunities",
+      "enabled": false,
+      "tested": "2026-11-13/19: answers HTTP 403 to automated requests (plain request from the Mac and Claude's web fetch). Not tried with a browser: getting past a site's refusal is not something this collector does. Enable only if the site allows it (robots.txt, a feed, an API)."
+    },
+    {
+      "name": "ekt_news",
+      "label": "ΕΚΤ · Νέα",
+      "url": "https://www.ekt.gr/el/news",
+      "category": "skills",
+      "enabled": false,
+      "tested": "2026-11-13/19: answers HTTP 403 to automated requests (plain request from the Mac and Claude's web fetch). Not tried with a browser: getting past a site's refusal is not something this collector does. Enable only if the site allows it (robots.txt, a feed, an API)."
+    },
+    {
+      "name": "bluebook",
+      "label": "Ευρωπαϊκή Επιτροπή · Blue Book traineeships",
+      "url": "https://traineeships.ec.europa.eu/",
+      "category": "opportunities",
+      "locale": "en-GB",
+      "mode": "page",
+      "tested": "2026-11-19 (Mac, headless Chromium): read. A programme page with no list, so it is watched for a change of its text."
+    },
+    {
+      "name": "un_careers",
+      "label": "UN Careers",
+      "url": "https://careers.un.org/jobopening?language=en",
+      "category": "opportunities",
+      "locale": "en-GB",
+      "enabled": false,
+      "tested": "2026-11-19: HTTP 403 to a headless browser (CloudFront «The request could not be satisfied»). The site refuses automated clients."
+    },
+    {
+      "name": "eures",
+      "label": "EURES",
+      "url": "https://eures.europa.eu/index_el",
+      "category": "careers",
+      "enabled": false,
+      "tested": "2026-11-19: HTTP 429 to a headless browser (europa.eu protection page). Not needed: Claude's web fetch reads the EURES news at https://eures.europa.eu/index_el."
+    },
+    {
+      "name": "europol_vacancies",
+      "label": "Europol · Vacancies",
+      "url": "https://www.europol.europa.eu/careers-procurement/open-vacancies",
+      "category": "opportunities",
+      "locale": "en-GB",
+      "link_regex": "/open-vacancies/vacancy/\\d+",
+      "min_links": 1,
+      "tested": "2026-11-19 (Mac, headless Chromium): read, 6 open vacancies with their deadlines in the excerpt."
+    },
+    {
+      "name": "embl_jobs",
+      "label": "EMBL · Jobs",
+      "url": "https://www.embl.org/jobs/",
+      "category": "opportunities",
+      "locale": "en-GB",
+      "enabled": false,
+      "tested": "2026-11-19: HTTP 429 to a headless browser (Cloudflare «Just a moment…»). The site refuses automated clients."
+    },
+    {
+      "name": "erasmusintern",
+      "label": "ErasmusIntern · Traineeships",
+      "url": "https://erasmusintern.org/traineeships",
+      "category": "opportunities",
+      "locale": "en-GB",
+      "enabled": false,
+      "tested": "2026-11-13/19: answers HTTP 403 to automated requests (plain request from the Mac and Claude's web fetch). Not tried with a browser: getting past a site's refusal is not something this collector does. Enable only if the site allows it (robots.txt, a feed, an API)."
+    },
+    {
+      "name": "dypa_news",
+      "label": "ΔΥΠΑ · Νέα",
+      "url": "https://www.dypa.gov.gr/nea-anakoinwseis",
+      "category": "skills",
+      "scope": "body",
+      "require_date": true,
+      "tested": "2026-11-19 (Mac, headless Chromium): read at /nea-anakoinwseis, 12 dated items. /news shows an empty list."
+    }
+  ]
+}

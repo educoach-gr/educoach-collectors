@@ -1,0 +1,57 @@
+name: Collectors
+
+# Reads ΦΕΚ, Διαύγεια and JavaScript-only listings and posts what is new to the gateway's Inbox, before the
+# morning research run. See README.md.
+
+on:
+  schedule:
+    - cron: '20 3 * * *'   # 03:20 UTC = 05:20 (winter) / 06:20 (summer) in Athens
+  workflow_dispatch:
+    inputs:
+      only:
+        description: 'Collectors to run (comma separated: fek,diavgeia,browser). Empty = all.'
+        required: false
+        default: ''
+      dry_run:
+        description: 'Dry run: print the items, send nothing'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: collectors
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      EC_API_URL: ${{ secrets.EC_API_URL }}
+      EC_SECRET: ${{ secrets.EC_SECRET }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install pdftotext
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends poppler-utils
+
+      - name: Install Playwright and Chromium
+        run: |
+          pip install -r collectors/requirements.txt
+          python -m playwright install --with-deps chromium
+
+      - name: Run collectors
+        env:
+          ONLY: ${{ github.event.inputs.only }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: |
+          args=()
+          if [ -n "$ONLY" ]; then args+=(--only "$ONLY"); fi
+          if [ "$DRY_RUN" = "true" ]; then args+=(--dry-run); fi
+          python -m collectors.run "${args[@]}"
