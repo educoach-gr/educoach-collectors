@@ -60,6 +60,14 @@ def gateway(action, **kw):
 
 # ---------------------------------------------------------------- http
 
+def retry_after(value, default=20, most=60):
+    """Seconds to wait after a 429: the server's Retry-After when it is a number of seconds, never more than `most`."""
+    try:
+        return max(1, min(most, int(str(value).strip())))
+    except (TypeError, ValueError):
+        return default
+
+
 class Http:
     """GET with a minimum gap between requests to the same collector's source (polite rate)."""
 
@@ -85,6 +93,8 @@ class Http:
                 if e.code < 500 and e.code != 429:
                     return e.code, b''
                 err = e
+                if e.code == 429 and n < tries - 1:    # asked to slow down: wait what the server says, then the usual pause
+                    time.sleep(retry_after(e.headers.get('Retry-After') if e.headers else None))
             except (urllib.error.URLError, TimeoutError, ConnectionError, OSError) as e:
                 err = e
             if n == tries - 1:

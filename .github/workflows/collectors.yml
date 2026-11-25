@@ -6,6 +6,10 @@ name: Collectors
 on:
   schedule:
     - cron: '20 3 * * *'   # 03:20 UTC = 05:20 (winter) / 06:20 (summer) in Athens
+    # GitHub started the 03:20 run about ten hours late on 23 and 24/11/2026 (13:13 and 13:57 UTC), after the research
+    # run of 05:00 UTC. A second run the afternoon before keeps the Inbox fresh even then; a run that finds nothing
+    # new sends nothing (cursors and the gateway's duplicate check).
+    - cron: '20 15 * * *'
   workflow_dispatch:
     inputs:
       only:

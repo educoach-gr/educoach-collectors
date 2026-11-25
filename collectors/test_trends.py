@@ -57,6 +57,25 @@ class Parsers(unittest.TestCase):
                                      {"article": "Fall_(2022_film)", "project": "en.wikipedia", "views_ceil": 1900, "rank": 2}]}]}
         self.assertEqual(t.wiki_gr_day(p), {('en.wikipedia', 'Fall_(2022_film)'): 1900})
 
+    def test_recent_days_stops_when_it_has_enough_and_skips_a_refused_day(self):
+        asked = []
+
+        def fetch(back, have={1: 'a', 2: 'b', 3: 'c', 4: 'd'}):
+            asked.append(back)
+            return have.get(back)
+        self.assertEqual(t.recent_days(fetch, 3), ['a', 'b', 'c'])
+        self.assertEqual(asked, [1, 2, 3])                       # the fourth day is never requested
+        asked.clear()
+        self.assertEqual(t.recent_days(lambda b: None if b == 1 else fetch(b), 3), ['b', 'c', 'd'])
+        self.assertEqual(t.recent_days(lambda b: None if b in (2, 3) else fetch(b), 3), ['a', 'd'])
+
+    def test_retry_after(self):
+        from .common import retry_after
+        self.assertEqual(retry_after('7'), 7)
+        self.assertEqual(retry_after('600'), 60)
+        self.assertEqual(retry_after(None), 20)
+        self.assertEqual(retry_after('Wed, 21 Oct 2026 07:28:00 GMT'), 20)
+
     def test_wiki_rank_skips_namespaces_and_dates(self):
         r = t.wiki_rank(day('Πύλη:Κύρια', 'Ειδικό:Αναζήτηση', '22_Νοεμβρίου', 'Grand_Theft_Auto_VI', '2026'))
         self.assertEqual(r, {'Grand_Theft_Auto_VI': 1})

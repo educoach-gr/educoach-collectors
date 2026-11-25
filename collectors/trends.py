@@ -85,6 +85,20 @@ def wiki_trends(days, base):
     return sorted(out, key=lambda x: min(r for r in x[1] if r))
 
 
+def recent_days(fetch, want, extra=1):
+    """The newest `want` days a source has, looking at most `extra` days further back. fetch(back) returns the day's
+    data, or None when the day is not published yet or was refused. It stops asking once it has enough: the request
+    that got «429 Too Many Requests» on 23/11/2026 was for a day that was not needed."""
+    days = []
+    for back in range(1, want + extra + 1):
+        if len(days) >= want:
+            break
+        d = fetch(back)
+        if d:
+            days.append(d)
+    return days
+
+
 def wiki_gr_day(payload):
     """{(project, article): views} of one day of «top per country», without files and special pages."""
     out = {}
@@ -229,7 +243,11 @@ def collect(run, explain=False):
 
     def get_day(url, back):
         d = today - datetime.timedelta(days=back)
-        status, data = http.get(url.format(y=d.year, m=d.month, d=d.day), timeout=40)
+        try:
+            status, data = http.get(url.format(y=d.year, m=d.month, d=d.day), timeout=40)
+        except RuntimeError as e:      # one day refused (429) or unreachable is a missing day, not a failed source
+            log(f'  day -{back} skipped: {str(e)[:160]}')
+            return None
         return json.loads(data.decode('utf-8')) if status == 200 else None
 
     def wikipedia():
@@ -249,12 +267,10 @@ def collect(run, explain=False):
                           'strength': 40 - min(r for r in ranks if r)})
 
     def wiki_gr():
-        days = []
-        for back in range(1, WIKI_GR_DAYS + 2):
+        def day(back):
             p = get_day(WIKI_GR, back)
-            if p:
-                days.append(wiki_gr_day(p))
-        days = days[:WIKI_GR_DAYS]
+            return wiki_gr_day(p) if p else None
+        days = recent_days(day, WIKI_GR_DAYS)
         if len(days) < WIKI_GR_NEED:
             raise RuntimeError(f'only {len(days)} days available')
         for (project, art), views in sorted(days[0].items(), key=lambda kv: -kv[1]):
@@ -365,5 +381,7 @@ def collect(run, explain=False):
              + (f'; failed: {"; ".join(errors)}' if errors else ''))
     if len(errors) == len(sources):
         raise RuntimeError('; '.join(errors))
-    run.post('trends', items, cursors, error='; '.join(errors))
+    # Some sources down while the rest answered is «partial»: the gateway keeps it for the research run and does not
+    # put a warning on the owner's page for it.
+    run.post('trends', items, cursors, error=('partial: ' + '; '.join(errors)) if errors else '')
     return len(items)
